@@ -12,7 +12,7 @@ SHELL := /bin/bash
 APP_DIR := $(shell pwd)
 VENV_DIR := venv
 REQUIREMENTS_FILE := requerimientos.txt
-PYTHON_BIN := $(VENV_DIR)/bin/python
+PYTHON_BIN := $(APP_DIR)/$(VENV_DIR)/bin/python
 
 # Variables de entorno inyectadas en 'run'
 PORT ?= 8081
@@ -22,6 +22,15 @@ APP_NAME ?= pc14app
 DOMAIN   ?= pc14app.local
 DNS_SERVER ?= 1.1.1.1 ## TODO servidor DNS para pruebas (dig)
 TARGET_URL ?= http://localhost:8081
+
+# Variables systemd
+DESCRIPTION ?= PC1 Proyecto 4 - Flask App
+USER ?= flaskuser
+GROUP ?= flaskuser
+EXEC_START ?=$(APP_DIR)/src/process_manager.sh start
+SYSTEMD_DIR := $(APP_DIR)/systemd
+SERVICE_TEMPLATE := $(SYSTEMD_DIR)/pc14app.service
+SERVICE_FILE := $(APP_DIR)/out/pc14app.service
 
 # ----------------------------------------------------
 # Detección del intérprete de Python
@@ -94,3 +103,20 @@ test-dig: ## Ejecuta pruebas con dig
 test-network: ## Ejecuta todas las pruebas de red
 	@./src/network_monitor.sh all
 
+tools: ## Verifica disponibilidad de utilidades.
+	@command -v $(PYTHON_BOOT) >/dev/null || { echo "[ERROR] falta $(PYTHON_BOOT)"; exit 1; }
+	@command -v pip >/dev/null || { echo "[ERROR] falta pip"; exit 1; }
+	@command -v bats >/dev/null || { echo "[ERROR] falta bats"; exit 1; }
+	@command -v grep >/dev/null || { echo "[ERROR] falta grep"; exit 1; }
+	@command -v awk >/dev/null || { echo "[ERROR] falta awk"; exit 1; }
+	@command -v tar >/dev/null || { echo "[ERROR] falta tar"; exit 1; }
+	@command -v sha256sum >/dev/null || { echo "[ERROR] falta sha256sum"; exit 1; }
+	@command -v curl >/dev/null || { echo "[ERROR] falta curl"; exit 1; }
+	@command -v git >/dev/null || { echo "[ERROR] falta git"; exit 1; }
+	@command -v openssl >/dev/null || { echo "[ERROR] falta openssl"; exit 1; }
+	@command -v dig >/dev/null || { echo "[ERROR] falta dig"; exit 1; }
+	@command -v ss >/dev/null || { echo "[ERROR] falta ss"; exit 1; }
+	@command -v xargs >/dev/null || { echo "[ERROR] falta xargs"; exit 1; }
+	@command -v sed >/dev/null || { echo "[ERROR] falta sed"; exit 1; }
+	@command -v tee >/dev/null || { echo "[ERROR] falta tee"; exit 1; }
+	@echo "Todas las herramientas necesarias están disponibles."
