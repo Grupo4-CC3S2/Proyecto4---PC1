@@ -18,3 +18,7 @@ Requirement already satisfied: werkzeug>=3.1.0 in ./.venv/lib/python3.12/site-pa
 [INFO] GET /  message=Ejecutando desde Makefile release=v1.0
 127.0.0.1 - - [18/Sep/2025 01:07:38] "GET / HTTP/1.1" 200 -
 127.0.0.1 - - [18/Sep/2025 01:07:38] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+[INFO] GET /  message=Ejecutando desde Makefile release=v1.0
+127.0.0.1 - - [18/Sep/2025 11:12:04] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Sep/2025 11:12:04] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+make: *** [Makefile:52: run] Terminated

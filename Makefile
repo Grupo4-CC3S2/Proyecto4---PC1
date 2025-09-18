@@ -49,7 +49,7 @@ install_deps:
 run: setup ## Ejecuta la app Flask en primer plano con variables de entorno inyectadas
 	@echo "Iniciando aplicación Flask en http://127.0.0.1:$(PORT)..."
 	# Inyección de variables de entorno (12-Factor Config)
-	@PORT=$(PORT) MESSAGE="$(MESSAGE)" RELEASE="$(RELEASE)" $(PYTHON_BIN) src/app.py
+	@PORT=$(PORT) MESSAGE="$(MESSAGE)" RELEASE="$(RELEASE)" $(PYTHON_BIN) app.py
 
 # ----------------------------------------------------
 # Targets de Limpieza y Ayuda
