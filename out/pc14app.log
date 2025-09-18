@@ -1,0 +1,21 @@
+ * Serving Flask app 'app'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:8001
+[33mPress CTRL+C to quit[0m
+[INFO] GET /  message=adios xd release=v.xd
+127.0.0.1 - - [18/Sep/2025 15:15:06] "GET / HTTP/1.1" 200 -
+[INFO] GET /  message=adios xd release=v.xd
+127.0.0.1 - - [18/Sep/2025 15:15:06] "GET / HTTP/1.1" 200 -
+[INFO] GET /  message=adios xd release=v.xd
+127.0.0.1 - - [18/Sep/2025 15:15:06] "GET / HTTP/1.1" 200 -
+[INFO] GET /  message=adios xd release=v.xd
+127.0.0.1 - - [18/Sep/2025 15:15:06] "GET / HTTP/1.1" 200 -
+[INFO] GET /  message=adios xd release=v.xd
+127.0.0.1 - - [18/Sep/2025 15:15:09] "GET / HTTP/1.1" 200 -
+[INFO] GET /  message=adios xd release=v.xd
+127.0.0.1 - - [18/Sep/2025 15:15:09] "GET / HTTP/1.1" 200 -
+[INFO] GET /  message=adios xd release=v.xd
+127.0.0.1 - - [18/Sep/2025 15:15:09] "GET / HTTP/1.1" 200 -
+[INFO] GET /  message=adios xd release=v.xd
+127.0.0.1 - - [18/Sep/2025 15:15:09] "GET / HTTP/1.1" 200 -
