@@ -93,7 +93,7 @@ help: ## Muestra los targets disponibles
 # Targets de pruebas curl y dig
 # ----------------------------------------------------
 
-# Targets para pruebas de red
+.PHONY: test-curl test-dig test-network help
 test-curl: ## Ejecuta pruebas con curl
 	@./src/network_monitor.sh curl
 
@@ -102,6 +102,10 @@ test-dig: ## Ejecuta pruebas con dig
 
 test-network: ## Ejecuta todas las pruebas de red
 	@./src/network_monitor.sh all
+
+# ----------------------------------------------------
+# systemd
+# ----------------------------------------------------
 
 tools: ## Verifica disponibilidad de utilidades.
 	@command -v $(PYTHON_BOOT) >/dev/null || { echo "[ERROR] falta $(PYTHON_BOOT)"; exit 1; }
