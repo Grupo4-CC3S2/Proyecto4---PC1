@@ -21,6 +21,7 @@ RELEASE ?= v1.0
 APP_NAME ?= pc14app
 DOMAIN   ?= pc14app.local
 DNS_SERVER ?= 1.1.1.1 ## TODO servidor DNS para pruebas (dig)
+TARGET_URL ?= http://localhost:8081
 
 # ----------------------------------------------------
 # Detección del intérprete de Python
@@ -78,3 +79,18 @@ help: ## Muestra los targets disponibles
 	@echo "Uso: make <target>"
 	@grep -E '^[a-zA-Z0-9_\-]+:.*?##' $(MAKEFILE_LIST) | \
 		awk 'BEGIN{FS=":.*?##"}{printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
+
+# ----------------------------------------------------
+# Targets de pruebas curl y dig
+# ----------------------------------------------------
+
+# Targets para pruebas de red
+test-curl: ## Ejecuta pruebas con curl
+	@./src/network_monitor.sh curl
+
+test-dig: ## Ejecuta pruebas con dig
+	@./src/network_monitor.sh dig
+
+test-network: ## Ejecuta todas las pruebas de red
+	@./src/network_monitor.sh all
+
