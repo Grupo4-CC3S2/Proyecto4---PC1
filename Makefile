@@ -120,3 +120,24 @@ tools: ## Verifica disponibilidad de utilidades.
 	@command -v sed >/dev/null || { echo "[ERROR] falta sed"; exit 1; }
 	@command -v tee >/dev/null || { echo "[ERROR] falta tee"; exit 1; }
 	@echo "Todas las herramientas necesarias están disponibles."
+
+systemd-install: $(SERVICE_FILE) ## Instalar el servicio con systemd
+	@echo "Archivo systemd generado en $(SERVICE_FILE)"
+	@echo "Instalando el servicio"
+	@command -v systemctl 1>/dev/null 2>&1 || echo "[ERROR] NO systemctl"
+	@sudo cp $(SERVICE_FILE) /etc/systemd/system/$(APP_NAME).service
+	@sudo systemctl daemon-reload 2>/dev/null || true
+	@sudo systemctl enable $(APP_NAME).service 2>/dev/null || true
+	@sudo systemctl restart $(APP_NAME).service 2>/dev/null || true
+
+.PHONY: $(SERVICE_FILE)
+$(SERVICE_FILE): $(SERVICE_TEMPLATE)
+	@sed \
+		-e 's|{{DESCRIPTION}}|$(DESCRIPTION)|g' \
+		-e 's|{{APP_DIR}}|$(APP_DIR)|g' \
+		-e 's|{{EXEC_START}}|$(EXEC_START)|g' \
+		-e 's|{{PYTHON_BIN}}|$(PYTHON_BIN)|g' \
+		-e 's|{{PORT}}|$(PORT)|g' \
+		-e 's|{{MESSAGE}}|$(MESSAGE)|g' \
+		-e 's|{{RELEASE}}|$(RELEASE)|g' \
+		$< > $@
