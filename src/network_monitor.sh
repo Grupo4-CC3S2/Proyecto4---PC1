@@ -1,5 +1,5 @@
 #!/bin/bash
-#set -euo pipefail # Manejo de errores por si falla algún comando
+set -euo pipefail # Manejo de errores por si falla algún comando
 
 # Variables de entorno
 TARGET_URL=${TARGET_URL:-"http://localhost:8081"}
