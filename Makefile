@@ -68,11 +68,14 @@ install_deps:
 # Target para Correr la Aplicación
 # ----------------------------------------------------
 
-.PHONY: run
+.PHONY: run build
 run: setup ## Ejecuta la app Flask en primer plano con variables de entorno inyectadas
 	@echo "Iniciando aplicación Flask en http://127.0.0.1:$(PORT)..."
 	# Inyección de variables de entorno (12-Factor Config)
 	@APP_DIR=$(APP_DIR) PORT=$(PORT) MESSAGE="$(MESSAGE)" RELEASE="$(RELEASE)" src/process_manager.sh start
+
+build: ## Ejecuta todas las pruebas de red y recolecta datos en out/
+	@./src/network_monitor.sh all
 
 # ----------------------------------------------------
 # Targets de Limpieza y Ayuda
@@ -93,15 +96,12 @@ help: ## Muestra los targets disponibles
 # Targets de pruebas curl y dig
 # ----------------------------------------------------
 
-.PHONY: test-curl test-dig test-network help
+.PHONY: test-curl test-dig  test-bats
 test-curl: ## Ejecuta pruebas con curl
 	@./src/network_monitor.sh curl
 
 test-dig: ## Ejecuta pruebas con dig
 	@./src/network_monitor.sh dig
-
-test-network: ## Ejecuta todas las pruebas de red
-	@./src/network_monitor.sh all
 
 test-bats: ## Ejecuta las pruebas bats
 	@APP_DIR=$(APP_DIR) bats tests/test_all.bats
@@ -208,3 +208,53 @@ $(SERVICE_FILE): $(SERVICE_TEMPLATE)
 		-e 's|{{MESSAGE}}|$(MESSAGE)|g' \
 		-e 's|{{RELEASE}}|$(RELEASE)|g' \
 		$< > $@
+
+# ----------------------------------------------------
+# Target de Empaquetado - Paquete Reproducible
+# ----------------------------------------------------
+
+.PHONY: pack
+pack: build tools ## Genera paquete reproducible en "dist/" (nombrado con RELEASE)
+        
+	@mkdir -p dist
+    
+    # Crear directorio temporal para el paquete
+	@rm -rf /tmp/$(APP_NAME)-$(RELEASE)
+	@mkdir -p /tmp/$(APP_NAME)-$(RELEASE)
+    
+    # Copiar archivos del proyecto (excluyendo venv y archivos temporales)
+	@echo "Copiando archivos del proyecto..."
+	@cp -r src/ /tmp/$(APP_NAME)-$(RELEASE)/
+	@cp -r tests/ /tmp/$(APP_NAME)-$(RELEASE)/
+	@cp -r systemd/ /tmp/$(APP_NAME)-$(RELEASE)/
+	@cp -r docs/ /tmp/$(APP_NAME)-$(RELEASE)/
+	@cp app.py /tmp/$(APP_NAME)-$(RELEASE)/
+	@cp $(REQUIREMENTS_FILE) /tmp/$(APP_NAME)-$(RELEASE)/
+	@cp Makefile /tmp/$(APP_NAME)-$(RELEASE)/
+	@cp README.md /tmp/$(APP_NAME)-$(RELEASE)/ 2>/dev/null || echo "README.md no encontrado"
+
+	# Copiar artefactos generados
+	@echo "Incluyendo artefactos generados..."
+	@cp -r out/ /tmp/$(APP_NAME)-$(RELEASE)/ 2>/dev/null || mkdir -p /tmp/$(APP_NAME)-$(RELEASE)/out
+
+	@echo "Creando paquete comprimido..."
+	@cd /tmp && tar -czf $(APP_DIR)/dist/$(APP_NAME)-$(RELEASE).tar.gz $(APP_NAME)-$(RELEASE)/
+    
+	# Generar checksum
+	@cd $(APP_DIR)/dist && sha256sum $(APP_NAME)-$(RELEASE).tar.gz > $(APP_NAME)-$(RELEASE).tar.gz.sha256
+    
+    # Limpiar archivos temporales (por si hay algún fallo)
+	@rm -rf /tmp/$(APP_NAME)-$(RELEASE)
+
+# ----------------------------------------------------
+# Target all - flujo principal
+# ----------------------------------------------------
+
+.PHONY: all
+all: setup systemd-install test-bats build pack ## Flujo principal
+    
+	@echo "1. Entorno virtual creado y configurado"
+	@echo "2. Servicio systemd instalado y configurado"
+	@echo "3. Pruebas BATS ejecutadas"
+	@echo "4. Artefactos generados en out/"
+	@echo "5. Paquete reproducible creado en dist/"
