@@ -1,0 +1,23 @@
+=== COMPARACIÓN HTTP vs HTTPS ===
+Fecha: Fri Sep 19 21:06:43 -05 2025
+HTTP Response Headers:
+HTTP/1.1 200 OK
+Content-Type: text/html
+ETag: "84238dfc8092e5d9c0dac8ef93371a07:1736799080.121134"
+Last-Modified: Mon, 13 Jan 2025 20:11:20 GMT
+Cache-Control: max-age=86000
+Date: Sat, 20 Sep 2025 02:06:43 GMT
+Connection: keep-alive
+
+HTTPS Response Headers:
+HTTP/2 200 
+content-type: text/html
+etag: "84238dfc8092e5d9c0dac8ef93371a07:1736799080.121134"
+last-modified: Mon, 13 Jan 2025 20:11:20 GMT
+cache-control: max-age=86000
+date: Sat, 20 Sep 2025 02:06:43 GMT
+alt-svc: h3=":443"; ma=93600
+
+TLS Certificate Info:
+subject=C = US, ST = California, L = Los Angeles, O = Internet Corporation for Assigned Names and Numbers, CN = *.example.com
+issuer=C = US, O = DigiCert Inc, CN = DigiCert Global G3 TLS ECC SHA384 2020 CA1

@@ -24,7 +24,7 @@ monitor() {
     test_dig
 }
 
-case "${1:-check}" in
+case "${1:-NOTDEF}" in
     "check") check_service ;;
     "monitor") monitor ;;
     *) echo "Uso: $0 {check|monitor}" ;;

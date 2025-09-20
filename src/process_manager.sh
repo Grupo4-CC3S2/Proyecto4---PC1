@@ -30,10 +30,40 @@ start() {
     $PYTHON_BIN $APP_DIR/app.py 2>&1 | tee $LOG_FILE
   return 0
 }
+
+clean() {
+  echo "Limpiando servicio $SERVICE_NAME..."
+
+  # 1. Detener el servicio
+  echo "Deteniendo servicio systemd $SERVICE_NAME..."
+  sudo systemctl disable "${SERVICE_NAME}.service" 2>/dev/null || true
+
+  # 2. Borrar unit file del sistema si existe
+  if [ -f "/etc/systemd/system/${SERVICE_NAME}.service" ]; then
+    echo "Eliminando unit file /etc/systemd/system/${SERVICE_NAME}.service..."
+    sudo rm -f "/etc/systemd/system/${SERVICE_NAME}.service"
+  fi
+
+  # 3. Recargar systemd
+  echo "Recargando systemd daemon..."
+  sudo systemctl daemon-reload || true
+
+  # 4. Eliminar entorno virtual
+  if [ -d "$VENV_DIR" ]; then
+    echo "Eliminando entorno virtual en $VENV_DIR..."
+    rm -rf "$VENV_DIR"
+  fi
+
+  echo "==> Limpieza completada."
+}
+
+
+
+trap "echo '[trap] SIGINT singal capturado con trap'; exit 0" INT
+trap "echo '[trap] TERM signal capturado con trap'; clean ; exit 0" TERM
+
 case "$1" in
   start) start ;;
-  stop) stop ;;
-  status) status ;;
   *)
     echo "Uso: $0 {start|stop|status}"
     exit 1

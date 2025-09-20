@@ -45,6 +45,7 @@ PY_BOOT := $(shell if command -v python3 >/dev/null 2>&1; then echo "python3"; e
 
 .PHONY: setup
 setup: $(VENV_DIR) install_deps ## Crea el venv e instala todas las dependencias
+	@chmod +x $(APP_DIR)/src/*.sh
 	@echo "Configuración de entorno lista."
 
 # Target para crear el entorno virtual
@@ -68,11 +69,14 @@ install_deps:
 # Target para Correr la Aplicación
 # ----------------------------------------------------
 
-.PHONY: run
+.PHONY: run build
 run: setup ## Ejecuta la app Flask en primer plano con variables de entorno inyectadas
 	@echo "Iniciando aplicación Flask en http://127.0.0.1:$(PORT)..."
 	# Inyección de variables de entorno (12-Factor Config)
 	@APP_DIR=$(APP_DIR) PORT=$(PORT) MESSAGE="$(MESSAGE)" RELEASE="$(RELEASE)" src/process_manager.sh start
+
+build: ## Ejecuta todas las pruebas de red y recolecta datos en out/
+	@./src/network_monitor.sh all
 
 # ----------------------------------------------------
 # Targets de Limpieza y Ayuda
@@ -93,15 +97,75 @@ help: ## Muestra los targets disponibles
 # Targets de pruebas curl y dig
 # ----------------------------------------------------
 
-.PHONY: test-curl test-dig test-network help
+.PHONY: test-curl test-dig  test-bats
 test-curl: ## Ejecuta pruebas con curl
 	@./src/network_monitor.sh curl
 
 test-dig: ## Ejecuta pruebas con dig
 	@./src/network_monitor.sh dig
 
-test-network: ## Ejecuta todas las pruebas de red
+test-bats: ## Ejecuta las pruebas bats
+	@APP_DIR=$(APP_DIR) bats tests/test_all.bats
+
+# ----------------------------------------------------
+# Targets de Pruebas de Red - Funciones Avanzadas
+# ----------------------------------------------------
+
+.PHONY: test-nc test-ssl test-ports
+test-nc: ## Pruebas de conectividad con netcat
+	@./src/network_monitor.sh nc
+
+test-ssl: ## Análisis TLS/SSL con openssl  
+	@./src/network_monitor.sh ssl
+
+test-ports: ## Verificación de puertos con ss
+	@./src/network_monitor.sh ports
+
+# ----------------------------------------------------
+# Targets de Comparación de Protocolos
+# ----------------------------------------------------
+
+.PHONY: compare-protocols compare-example
+compare-protocols: ## Comparación HTTP vs HTTPS con Google
+	@./src/network_monitor.sh compare
+
+compare-example: ## Comparación HTTP vs HTTPS con Example.com
+	@./src/network_monitor.sh compare-example
+
+# ----------------------------------------------------
+# Targets de Configuración y Verificación Local
+# ----------------------------------------------------
+
+.PHONY: setup-hosts test-pc14app
+setup-hosts: ## Configurar entrada en /etc/hosts para pc14app.local
+	@./src/network_monitor.sh hosts
+
+test-pc14app: ## Verificar servicio PC14APP local
+	@./src/network_monitor.sh pc14app
+
+# ----------------------------------------------------
+# Targets de Demo y Pruebas Combinadas
+# ----------------------------------------------------
+
+.PHONY: demo-complete demo-protocols demo-local
+demo-complete: ## Demo completo de todas las funcionalidades
+	@echo "=== DEMO COMPLETO NETWORK MONITOR ==="
 	@./src/network_monitor.sh all
+
+demo-protocols: ## Demo de comparación de protocolos HTTP/HTTPS
+	@echo "=== DEMO COMPARACIÓN PROTOCOLOS ==="
+	@./src/network_monitor.sh compare
+	@echo ""
+	@echo "=== Comparando con Example.com ==="
+	@./src/network_monitor.sh compare-example
+
+demo-local: ## Demo de verificación local y configuración
+	@echo "=== DEMO CONFIGURACIÓN LOCAL ==="
+	@./src/network_monitor.sh hosts
+	@echo ""
+	@./src/network_monitor.sh pc14app
+	@echo ""
+	@./src/network_monitor.sh ports
 
 # ----------------------------------------------------
 # systemd
@@ -125,7 +189,7 @@ tools: ## Verifica disponibilidad de utilidades.
 	@command -v tee >/dev/null || { echo "[ERROR] falta tee"; exit 1; }
 	@echo "Todas las herramientas necesarias están disponibles."
 
-systemd-install: $(SERVICE_FILE) ## Instalar el servicio con systemd
+systemd-install:setup $(SERVICE_FILE) ## Instalar el servicio con systemd
 	@echo "Archivo systemd generado en $(SERVICE_FILE)"
 	@echo "Instalando el servicio"
 	@command -v systemctl 1>/dev/null 2>&1 || echo "[ERROR] NO systemctl"
@@ -145,3 +209,53 @@ $(SERVICE_FILE): $(SERVICE_TEMPLATE)
 		-e 's|{{MESSAGE}}|$(MESSAGE)|g' \
 		-e 's|{{RELEASE}}|$(RELEASE)|g' \
 		$< > $@
+
+# ----------------------------------------------------
+# Target de Empaquetado - Paquete Reproducible
+# ----------------------------------------------------
+
+.PHONY: pack
+pack: build tools ## Genera paquete reproducible en "dist/" (nombrado con RELEASE)
+        
+	@mkdir -p dist
+    
+    # Crear directorio temporal para el paquete
+	@rm -rf /tmp/$(APP_NAME)-$(RELEASE)
+	@mkdir -p /tmp/$(APP_NAME)-$(RELEASE)
+    
+    # Copiar archivos del proyecto (excluyendo venv y archivos temporales)
+	@echo "Copiando archivos del proyecto..."
+	@cp -r src/ /tmp/$(APP_NAME)-$(RELEASE)/
+	@cp -r tests/ /tmp/$(APP_NAME)-$(RELEASE)/
+	@cp -r systemd/ /tmp/$(APP_NAME)-$(RELEASE)/
+	@cp -r docs/ /tmp/$(APP_NAME)-$(RELEASE)/
+	@cp app.py /tmp/$(APP_NAME)-$(RELEASE)/
+	@cp $(REQUIREMENTS_FILE) /tmp/$(APP_NAME)-$(RELEASE)/
+	@cp Makefile /tmp/$(APP_NAME)-$(RELEASE)/
+	@cp README.md /tmp/$(APP_NAME)-$(RELEASE)/ 2>/dev/null || echo "README.md no encontrado"
+
+	# Copiar artefactos generados
+	@echo "Incluyendo artefactos generados..."
+	@cp -r out/ /tmp/$(APP_NAME)-$(RELEASE)/ 2>/dev/null || mkdir -p /tmp/$(APP_NAME)-$(RELEASE)/out
+
+	@echo "Creando paquete comprimido..."
+	@cd /tmp && tar -czf $(APP_DIR)/dist/$(APP_NAME)-$(RELEASE).tar.gz $(APP_NAME)-$(RELEASE)/
+    
+	# Generar checksum
+	@cd $(APP_DIR)/dist && sha256sum $(APP_NAME)-$(RELEASE).tar.gz > $(APP_NAME)-$(RELEASE).tar.gz.sha256
+    
+    # Limpiar archivos temporales (por si hay algún fallo)
+	@rm -rf /tmp/$(APP_NAME)-$(RELEASE)
+
+# ----------------------------------------------------
+# Target all - flujo principal
+# ----------------------------------------------------
+
+.PHONY: all
+all: setup systemd-install test-bats build pack ## Flujo principal
+    
+	@echo "1. Entorno virtual creado y configurado"
+	@echo "2. Servicio systemd instalado y configurado"
+	@echo "3. Pruebas BATS ejecutadas"
+	@echo "4. Artefactos generados en out/"
+	@echo "5. Paquete reproducible creado en dist/"
