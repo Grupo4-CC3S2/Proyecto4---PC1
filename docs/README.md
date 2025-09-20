@@ -1,0 +1,58 @@
+# Proyecto 4: Gestor de procesos seguros con enfoque en redes
+
+## Sprint 1
+
+### Variables de configuración del Makefile
+
+| Variable       | Valor por defecto            | Efecto observable |
+|----------------|------------------------------|-------------------|
+| `PORT`         | `8081`                       | Puerto en el que Flask expone la aplicación. |
+| `MESSAGE`      | `"Ejecutando desde Makefile"`| Texto que se devuelve en la respuesta JSON de la API y aparece en logs. |
+| `RELEASE`      | `v1.0`                       | Versión de la app, visible en logs y respuestas de la API. |
+| `APP_NAME`     | `pc14app`                    | Nombre lógico del servicio (unit file en systemd se llamará `pc14app.service`). |
+| `DOMAIN`       | `pc14app.local`              | Dominio usado para pruebas locales de red. |
+| `DNS_SERVER`   | `1.1.1.1`                    | Servidor DNS que se usará en pruebas con `dig`. |
+| `TARGET_URL`   | `http://localhost:8081`      | URL usada en pruebas con `curl`. |
+| `DESCRIPTION`  | `"PC1 Proyecto 4 - Flask App"` | Texto descriptivo que aparece en el unit file de systemd. |
+| `EXEC_START`   | `$(APP_DIR)/src/process_manager.sh start` | Comando que arranca el proceso principal desde systemd. |
+| `PY_BOOT`      | `python3` ó `python` (auto-detectado) | Intérprete usado para crear el entorno virtual. |
+
+- **feature/JesusStC**
+
+    1. app.py
+
+        - Funcionalidad: API REST con endpoint `/` que retorna información del sistema
+        - Configuración: Variables de entorno (PORT, MESSAGE, RELEASE)
+        - Logging: Salida estructurada a stdout
+
+    2. src/process_manager.sh - Script bash para manejar el ciclo de vida de la aplicación
+
+        - Funcionalidad: Inicia, detiene y consulta estado del servicio
+        - Logging: Registra salida en archivos de log
+        - Variables: Configurable via variables de entorno
+
+    3. Makefile - Automatización y Gestión del Proyecto
+
+        - Gestión de entorno virtual
+        - Instalación de dependencias
+        - Ejecución de la aplicación
+
+- **feature/Diego-Osorio**
+
+    1. src/network_monitor.sh - Script principal con pruebas HTTP y DNS
+
+        - Función test_curl(): Pruebas con curl, códigos HTTP, headers
+        - Función test_dig(): Resolución DNS local y con servidor específico
+
+    2. src/gestor.sh - Integrador que usa network_monitor.sh
+
+        - Función check_service(): Verificación integral de conectividad
+        - Función monitor(): Monitoreo completo HTTP + DNS
+
+    3. Modificaciones al Makefile
+
+        - Targets: test-curl, test-dig, test-network
+        - .PHONY declarado correctamente  
+
+- **feature/Mora-systemd**  
+    En este sprint se definió el target `systemd-install`, el cual genera un servicio de `systemd` que utiliza `src/process_manager.sh start`. Ambos componentes leen las variables de entorno definidas en el `Makefile`, aplicando la práctica de **configuración por entorno** del modelo **12-Factor App**.
