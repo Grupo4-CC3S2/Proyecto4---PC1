@@ -1,0 +1,37 @@
+=== COMPARACIÓN HTTP vs HTTPS CON google.com ===
+Fecha: Fri Sep 19 23:15:32 -05 2025
+
+HTTP Response Headers (google.com):
+HTTP/1.1 301 Moved Permanently
+Location: http://www.google.com/
+Content-Type: text/html; charset=UTF-8
+Content-Security-Policy-Report-Only: object-src 'none';base-uri 'self';script-src 'nonce-XyvJCJfP_phYvpW_acu72Q' 'strict-dynamic' 'report-sample' 'unsafe-eval' 'unsafe-inline' https: http:;report-uri https://csp.withgoogle.com/csp/gws/other-hp
+Date: Sat, 20 Sep 2025 04:15:32 GMT
+Expires: Mon, 20 Oct 2025 04:15:32 GMT
+Cache-Control: public, max-age=2592000
+Server: gws
+Content-Length: 219
+X-XSS-Protection: 0
+X-Frame-Options: SAMEORIGIN
+
+
+HTTPS Response Headers (google.com):
+HTTP/2 301 
+location: https://www.google.com/
+content-type: text/html; charset=UTF-8
+content-security-policy-report-only: object-src 'none';base-uri 'self';script-src 'nonce-2bYo0fz37EBJeGnuh9D5uw' 'strict-dynamic' 'report-sample' 'unsafe-eval' 'unsafe-inline' https: http:;report-uri https://csp.withgoogle.com/csp/gws/other-hp
+date: Sat, 20 Sep 2025 04:15:32 GMT
+expires: Mon, 20 Oct 2025 04:15:32 GMT
+cache-control: public, max-age=2592000
+server: gws
+content-length: 220
+x-xss-protection: 0
+x-frame-options: SAMEORIGIN
+alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+
+
+TLS Certificate Info (google.com):
+subject=CN = *.google.com
+issuer=C = US, O = Google Trust Services, CN = WR2
+notBefore=Sep  8 08:34:53 2025 GMT
+notAfter=Dec  1 08:34:52 2025 GMT

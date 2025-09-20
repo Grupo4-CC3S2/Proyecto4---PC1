@@ -104,6 +104,66 @@ test-network: ## Ejecuta todas las pruebas de red
 	@./src/network_monitor.sh all
 
 # ----------------------------------------------------
+# Targets de Pruebas de Red - Funciones Avanzadas
+# ----------------------------------------------------
+
+.PHONY: test-nc test-ssl test-ports
+test-nc: ## Pruebas de conectividad con netcat
+	@./src/network_monitor.sh nc
+
+test-ssl: ## Análisis TLS/SSL con openssl  
+	@./src/network_monitor.sh ssl
+
+test-ports: ## Verificación de puertos con ss
+	@./src/network_monitor.sh ports
+
+# ----------------------------------------------------
+# Targets de Comparación de Protocolos
+# ----------------------------------------------------
+
+.PHONY: compare-protocols compare-example
+compare-protocols: ## Comparación HTTP vs HTTPS con Google
+	@./src/network_monitor.sh compare
+
+compare-example: ## Comparación HTTP vs HTTPS con Example.com
+	@./src/network_monitor.sh compare-example
+
+# ----------------------------------------------------
+# Targets de Configuración y Verificación Local
+# ----------------------------------------------------
+
+.PHONY: setup-hosts test-pc14app
+setup-hosts: ## Configurar entrada en /etc/hosts para pc14app.local
+	@./src/network_monitor.sh hosts
+
+test-pc14app: ## Verificar servicio PC14APP local
+	@./src/network_monitor.sh pc14app
+
+# ----------------------------------------------------
+# Targets de Demo y Pruebas Combinadas
+# ----------------------------------------------------
+
+.PHONY: demo-complete demo-protocols demo-local
+demo-complete: ## Demo completo de todas las funcionalidades
+	@echo "=== DEMO COMPLETO NETWORK MONITOR ==="
+	@./src/network_monitor.sh all
+
+demo-protocols: ## Demo de comparación de protocolos HTTP/HTTPS
+	@echo "=== DEMO COMPARACIÓN PROTOCOLOS ==="
+	@./src/network_monitor.sh compare
+	@echo ""
+	@echo "=== Comparando con Example.com ==="
+	@./src/network_monitor.sh compare-example
+
+demo-local: ## Demo de verificación local y configuración
+	@echo "=== DEMO CONFIGURACIÓN LOCAL ==="
+	@./src/network_monitor.sh hosts
+	@echo ""
+	@./src/network_monitor.sh pc14app
+	@echo ""
+	@./src/network_monitor.sh ports
+
+# ----------------------------------------------------
 # systemd
 # ----------------------------------------------------
 
