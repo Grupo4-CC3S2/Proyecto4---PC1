@@ -45,6 +45,7 @@ PY_BOOT := $(shell if command -v python3 >/dev/null 2>&1; then echo "python3"; e
 
 .PHONY: setup
 setup: $(VENV_DIR) install_deps ## Crea el venv e instala todas las dependencias
+	@chmod +x $(APP_DIR)/src/*.sh
 	@echo "Configuración de entorno lista."
 
 # Target para crear el entorno virtual
@@ -188,7 +189,7 @@ tools: ## Verifica disponibilidad de utilidades.
 	@command -v tee >/dev/null || { echo "[ERROR] falta tee"; exit 1; }
 	@echo "Todas las herramientas necesarias están disponibles."
 
-systemd-install: $(SERVICE_FILE) ## Instalar el servicio con systemd
+systemd-install:setup $(SERVICE_FILE) ## Instalar el servicio con systemd
 	@echo "Archivo systemd generado en $(SERVICE_FILE)"
 	@echo "Instalando el servicio"
 	@command -v systemctl 1>/dev/null 2>&1 || echo "[ERROR] NO systemctl"
