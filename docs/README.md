@@ -56,3 +56,33 @@
 
 - **feature/Mora-systemd**  
     En este sprint se definió el target `systemd-install`, el cual genera un servicio de `systemd` que utiliza `src/process_manager.sh start`. Ambos componentes leen las variables de entorno definidas en el `Makefile`, aplicando la práctica de **configuración por entorno** del modelo **12-Factor App**.
+
+## Sprint 2
+
+- **feature/DiegoOsorio-Redes**
+    1. src/process_manager.sh - Se agregan pruebas avanzadas, como:
+        - check_ports_ss() - Análisis Avanzado de Puertos
+        - test_http_nc() - HTTP Raw con Netcat
+        - test_connectivity_nc() - Verificación de Conectividad
+        - analyze_tls_openssl() - Análisis TLS/SSL Seguro
+        - setup_hosts() - Configuración DNS Local
+        - compare_http_https() - Comparación Completa de Protocolos
+        - check_pc14app_service() - Verificación Servicio Local
+
+    2. Makefile - Automatización y Gestión del Proyecto
+
+        - Agrega targets que ejecutan las nuevas funciones de `network_monitor.sh`.
+
+- **feature/Mora-bats**
+
+  1. `test_all.bats`  
+     - Manejo de señales  
+     - Manejo de scripts `.sh`:  
+       - Finaliza con código **1** cuando un argumento no está definido  
+       - Muestra el mensaje de uso cuando el argumento no es válido  
+       - Verifica que el servicio se ejecute correctamente  
+
+  2. Target `test-bats` en el **Makefile**  
+     - Ejecuta los tests definidos en el archivo  
+     - Pasa como variable de entorno el directorio de trabajo  
+     - Crea un servicio temporal para las pruebas  
