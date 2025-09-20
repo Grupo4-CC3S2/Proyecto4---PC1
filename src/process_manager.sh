@@ -30,10 +30,12 @@ start() {
     $PYTHON_BIN $APP_DIR/app.py 2>&1 | tee $LOG_FILE
   return 0
 }
+
+trap "echo '[trap] SIGINT singal capturado con trap'; exit 0" INT
+trap "echo '[trap] TERM signal capturado con trap'; exit 0" TERM
+
 case "$1" in
   start) start ;;
-  stop) stop ;;
-  status) status ;;
   *)
     echo "Uso: $0 {start|stop|status}"
     exit 1

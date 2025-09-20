@@ -103,6 +103,9 @@ test-dig: ## Ejecuta pruebas con dig
 test-network: ## Ejecuta todas las pruebas de red
 	@./src/network_monitor.sh all
 
+test-bats: ## Ejecuta las pruebas bats
+	@APP_DIR=$(APP_DIR) bats tests/test_all.bats
+
 # ----------------------------------------------------
 # systemd
 # ----------------------------------------------------
