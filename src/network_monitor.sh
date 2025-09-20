@@ -33,7 +33,7 @@ test_dig() {
 }
 
 # Función principal
-case "${1:-all}" in
+case "${1:-notdef}" in
     "curl") test_curl ;;
     "dig") test_dig ;;
     "all") test_curl; echo ""; test_dig ;;
